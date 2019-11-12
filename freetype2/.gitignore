@@ -1,1 +1,3 @@
 config.mk
+/objs
+/builds/unix/a.out*
