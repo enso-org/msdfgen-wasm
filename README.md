@@ -2,8 +2,9 @@
 
 This repository contains a copy of 
 [msdfgen library](https://github.com/Chlumsky/msdfgen) (commit 
-86acea7835269a9817f772eea6d7465cb080cdfe) with its freetype dependency, adapted
-to webassebly. The changes includes CMakeScripts, 
+[86acea](https://github.com/Chlumsky/msdfgen/tree/86acea7835269a9817f772eea6d7465cb080cdfe)) 
+with its freetype dependency, adapted to webassebly. The changes 
+includes CMakeScripts, 
 [exported C API](https://github.com/luna/msdfgen-wasm/blob/wip/ao/msdf-wasm/msdfgen/wasm/msdfgen_c.h),
 and other required adjustements.
 
