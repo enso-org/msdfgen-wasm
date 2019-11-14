@@ -15,7 +15,7 @@ assignees: ''
 ### Steps to Reproduce
 <!--
 Please list the reproduction steps for your bug, e.g. a sequence of 
-API functions usage causing errors.
+API calls that result in errors.
 -->
 
 ### Expected Result
