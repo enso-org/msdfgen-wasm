@@ -1,4 +1,4 @@
-# Msdfgen library for Wasm32
+# Msdfgen Library for Wasm32
 
 This repository contains a copy of 
 [msdfgen library](https://github.com/Chlumsky/msdfgen) (commit 
