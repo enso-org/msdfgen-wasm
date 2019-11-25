@@ -5,11 +5,17 @@ This repository contains a copy of
 [86acea](https://github.com/Chlumsky/msdfgen/tree/86acea7835269a9817f772eea6d7465cb080cdfe)) 
 with its freetype dependency, adapted to webassebly. The changes 
 includes CMakeScripts, 
-[exported C API](https://github.com/luna/msdfgen-wasm/blob/wip/ao/msdf-wasm/msdfgen/wasm/msdfgen_c.h),
+[exported C API](https://github.com/luna/msdfgen-wasm/blob/master/msdfgen/wasm/msdfgen_c.h),
 and other required adjustements.
 
 See [this instruction](https://emscripten.org/docs/porting/connecting_cpp_and_javascript/Interacting-with-code.html)
 how to use exported functions in JavaScript.
+
+Emscripten libraries loads their environment asynchronously. You must not use
+any exported function before this initialization is complete. This library
+provides two js functions for querying initialization state (defined
+[here](https://github.com/luna/msdfgen-wasm/blob/master/msdfgen/wasm/pre.js):
+`isInitialized` and `addInitializationCb`.
 
 # Build
 

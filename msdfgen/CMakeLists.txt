@@ -83,7 +83,7 @@ target_link_libraries(msdfgen lib_msdfgen)
 
 # Build the wasm for basegl
 
-add_executable(msdfgen_wasm wasm/msdfgen_c.h wasm/msdfgen_c.cpp)
+add_executable(msdfgen_wasm wasm/msdfgen_c.h wasm/msdfgen_c.cpp wasm/post.js wasm/pre.js)
 target_link_libraries(msdfgen_wasm PRIVATE lib_msdfgen)
 target_include_directories(msdfgen_wasm PRIVATE
     "${CMAKE_CURRENT_LIST_DIR}"
@@ -91,7 +91,6 @@ target_include_directories(msdfgen_wasm PRIVATE
     "${CMAKE_CURRENT_LIST_DIR}/wasm")
 set_target_properties(msdfgen_wasm PROPERTIES
     LINK_FLAGS "-s EXPORTED_FUNCTIONS='[     \
-            \"_main\",                       \
             \"_msdfgen_maxMSDFSize\",        \
             \"_msdfgen_loadFontMemory\",     \
             \"_msdfgen_generateMSDF\",       \
@@ -100,5 +99,6 @@ set_target_properties(msdfgen_wasm PROPERTIES
             \"ccall\",                       \
             \"cwrap\",                       \
             \"getValue\"]'                   \
-        -s SINGLE_FILE=1 -s                  \
-        BINARYEN_ASYNC_COMPILATION=0")
+        -s SINGLE_FILE=1                     \
+        --pre-js ${CMAKE_CURRENT_LIST_DIR}/wasm/pre.js \
+        --post-js ${CMAKE_CURRENT_LIST_DIR}/wasm/post.js")

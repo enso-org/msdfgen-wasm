@@ -12,9 +12,16 @@ namespace {
 constexpr const int CHANNELS_COUNT = 3;
 constexpr const int MAX_OUTPUT_SIZE = 64;
 
-std::unique_ptr<
-    msdfgen::FreetypeHandle, decltype(&msdfgen::deinitializeFreetype)
-> tt(nullptr, msdfgen::deinitializeFreetype);
+using FtHandlePtr = std::unique_ptr<
+        msdfgen::FreetypeHandle,
+        decltype(&msdfgen::deinitializeFreetype)>;
+
+FtHandlePtr &getFtHandle() {
+    static FtHandlePtr ptr(
+                msdfgen::initializeFreetype(),
+                msdfgen::deinitializeFreetype);
+    return ptr;
+}
 
 float output_buffer[MAX_OUTPUT_SIZE*MAX_OUTPUT_SIZE*CHANNELS_COUNT];
 
@@ -31,7 +38,10 @@ msdfgen::FontHandle* msdfgen_loadFontMemory(
         const unsigned char *data,
         long size)
 {
-    return msdfgen::loadFontMemory(tt.get(), data, size);
+    std::vector<unsigned char> owned_data;
+    owned_data.resize(size);
+    memcpy(owned_data.data(), data, size);
+    return msdfgen::loadFontMemory(getFtHandle().get(), std::move(owned_data));
 }
 
 float* msdfgen_generateMSDF(
@@ -71,8 +81,4 @@ void msdfgen_freeFont(msdfgen::FontHandle *fontHandle) {
     msdfgen::destroyFont(fontHandle);
 }
 
-}
-
-int main() {
-    tt.reset(msdfgen::initializeFreetype());
 }

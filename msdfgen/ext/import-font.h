@@ -2,6 +2,7 @@
 #pragma once
 
 #include <cstdlib>
+#include <vector>
 #include "../core/Shape.h"
 
 namespace msdfgen {
@@ -15,7 +16,7 @@ FreetypeHandle * initializeFreetype();
 void deinitializeFreetype(FreetypeHandle *library);
 /// Loads a font file and returns its handle
 FontHandle * loadFont(FreetypeHandle *library, const char *filename);
-FontHandle * loadFontMemory(FreetypeHandle *library, const unsigned char *data, long size);
+FontHandle * loadFontMemory(FreetypeHandle *library, std::vector<unsigned char> &&data);
 /// Unloads a font file
 void destroyFont(FontHandle *font);
 /// Returns the size of one EM in the font's coordinate system

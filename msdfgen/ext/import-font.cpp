@@ -19,7 +19,7 @@ class FreetypeHandle {
     friend FreetypeHandle * initializeFreetype();
     friend void deinitializeFreetype(FreetypeHandle *library);
     friend FontHandle * loadFont(FreetypeHandle *library, const char *filename);
-    friend FontHandle * loadFontMemory(FreetypeHandle *library, const FT_Byte *data, FT_Long size);
+    friend FontHandle * loadFontMemory(FreetypeHandle *library, std::vector<unsigned char> &&data);
 
     FT_Library library;
 
@@ -27,7 +27,7 @@ class FreetypeHandle {
 
 class FontHandle {
     friend FontHandle * loadFont(FreetypeHandle *library, const char *filename);
-    friend FontHandle * loadFontMemory(FreetypeHandle *library, const FT_Byte *data, FT_Long size);
+    friend FontHandle * loadFontMemory(FreetypeHandle *library, std::vector<unsigned char> &&data);
     friend void destroyFont(FontHandle *font);
     friend bool getFontScale(double &output, FontHandle *font);
     friend bool getFontWhitespaceWidth(double &spaceAdvance, double &tabAdvance, FontHandle *font);
@@ -35,6 +35,7 @@ class FontHandle {
     friend bool getKerning(double &output, FontHandle *font, int unicode1, int unicode2);
 
     FT_Face face;
+    std::vector<unsigned char> memory_data;
 
 };
 
@@ -103,11 +104,17 @@ FontHandle * loadFont(FreetypeHandle *library, const char *filename) {
     return handle;
 }
 
-FontHandle * loadFontMemory(FreetypeHandle *library, const FT_Byte *data, FT_Long size) {
+FontHandle * loadFontMemory(FreetypeHandle *library, std::vector<unsigned char> &&data) {
     if (!library)
         return NULL;
     FontHandle *handle = new FontHandle;
-    FT_Error error = FT_New_Memory_Face(library->library, data, size, 0, &handle->face);
+    handle->memory_data = std::move(data);
+    FT_Error error = FT_New_Memory_Face(
+                library->library,
+                handle->memory_data.data(),
+                handle->memory_data.size(),
+                0,
+                &handle->face);
     if (error) {
         delete handle;
         return NULL;
