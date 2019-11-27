@@ -6,6 +6,7 @@
 #include <ft2build.h>
 #include <memory>
 #include <cassert>
+#include <limits>
 
 namespace {
 
@@ -23,7 +24,7 @@ FtHandlePtr &getFtHandle() {
     return ptr;
 }
 
-float output_buffer[MAX_OUTPUT_SIZE*MAX_OUTPUT_SIZE*CHANNELS_COUNT];
+float output_buffer[MAX_OUTPUT_SIZE*MAX_OUTPUT_SIZE*CHANNELS_COUNT+4];
 
 }
 
@@ -76,6 +77,69 @@ float* msdfgen_generateMSDF(
                 overlapSupport);
     return output_buffer;
 }
+
+float* msdfgen_generateAutoscaledMSDF(
+        int width,
+        int height,
+        msdfgen::FontHandle *fontHandle,
+        int unicode,
+        double edgeColoringAngleThreshold,
+        double range,
+        double edgeThreshold,
+        char overlapSupport)
+{
+    double advance = 0.0;
+    double bearingX = 0.0;
+
+    double l = std::numeric_limits<double>::max();
+    double b = std::numeric_limits<double>::max();
+    double r = std::numeric_limits<double>::min();
+    double t = std::numeric_limits<double>::min();
+    msdfgen::Vector2 translate;
+    double scale = 1.0;
+
+    msdfgen::Shape shape;
+    if (!msdfgen::loadGlyph(shape, fontHandle, unicode, &advance, &bearingX)) {
+        return nullptr;
+    }
+
+    shape.bounds(l, b, r, t);
+    msdfgen::Vector2 frame(width, height);
+    l -= .5*range;
+    b -= .5*range;
+    r += .5*range;
+    t += .5*range;
+    if (l >= r || b >= t)
+        l = 0, b = 0, r = width, t = height;
+    msdfgen::Vector2 dims(r-l, t-b);
+    if (dims.x*frame.y < dims.y*frame.x) {
+        translate.set(.5*(frame.x/frame.y*dims.y-dims.x)-l, -b);
+        scale = std::min(2.0, frame.y/dims.y);
+    } else {
+        translate.set(-l, .5*(frame.y/frame.x*dims.x-dims.y)-b);
+        scale = std::min(2.0, frame.x/dims.x);
+    }
+
+    float *writting_ptr = output_buffer;
+    *(writting_ptr++) = translate.x - bearingX;
+    *(writting_ptr++) = translate.y;
+    *(writting_ptr++) = scale;
+    *(writting_ptr++) = advance;
+
+    edgeColoringSimple(shape, edgeColoringAngleThreshold);
+    msdfgen::BitmapRef<float, 3> outputBmpRef(writting_ptr, width, height);
+    msdfgen::generateMSDF(
+                outputBmpRef,
+                shape,
+                range,
+                {scale, scale},
+                translate,
+                edgeThreshold,
+                overlapSupport);
+    return output_buffer;
+}
+
+
 
 void msdfgen_freeFont(msdfgen::FontHandle *fontHandle) {
     msdfgen::destroyFont(fontHandle);

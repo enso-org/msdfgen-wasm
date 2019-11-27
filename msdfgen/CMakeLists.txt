@@ -94,6 +94,7 @@ set_target_properties(msdfgen_wasm PROPERTIES
             \"_msdfgen_maxMSDFSize\",        \
             \"_msdfgen_loadFontMemory\",     \
             \"_msdfgen_generateMSDF\",       \
+            \"_msdfgen_generateAutoscaledMSDF\", \
             \"_msdfgen_freeFont\"]'          \
         -s 'EXTRA_EXPORTED_RUNTIME_METHODS=[ \
             \"ccall\",                       \
