@@ -11,7 +11,6 @@
 namespace {
 
 constexpr const int CHANNELS_COUNT = 3;
-constexpr const int MAX_OUTPUT_SIZE = 64;
 
 using FtHandlePtr = std::unique_ptr<
         msdfgen::FreetypeHandle,
@@ -24,16 +23,41 @@ FtHandlePtr &getFtHandle() {
     return ptr;
 }
 
-float output_buffer[MAX_OUTPUT_SIZE*MAX_OUTPUT_SIZE*CHANNELS_COUNT+4];
+MSDFGenResult *generateMSDFResult(
+        int width,
+        int height,
+        const msdfgen::Shape &shape,
+        double advance,
+        double range,
+        const msdfgen::Vector2 &scale,
+        const msdfgen::Vector2 &translate,
+        double edgeThreshold,
+        bool overlapSupport)
+{
+    std::size_t msdfDataSize = width * height * CHANNELS_COUNT;
+    std::size_t msdfDataSizeBytes = sizeof(float) * msdfDataSize;
+    MSDFGenResult *result = (MSDFGenResult*)malloc(sizeof(MSDFGenResult) + msdfDataSizeBytes);
+    result->advance = advance;
+    result->translation[0] = translate.x;
+    result->translation[1] = translate.y;
+    result->scale[0] = scale.x;
+    result->scale[1] = scale.y;
+
+    msdfgen::BitmapRef<float, 3> outputBmpRef(result->msdf, width, height);
+    msdfgen::generateMSDF(
+                outputBmpRef,
+                shape,
+                range,
+                scale,
+                translate,
+                edgeThreshold,
+                overlapSupport);
+    return result;
+}
 
 }
 
 extern "C" {
-
-int msdfgen_maxMSDFSize()
-{
-    return MAX_OUTPUT_SIZE;
-}
 
 msdfgen::FontHandle* msdfgen_loadFontMemory(
         const unsigned char *data,
@@ -45,7 +69,18 @@ msdfgen::FontHandle* msdfgen_loadFontMemory(
     return msdfgen::loadFontMemory(getFtHandle().get(), std::move(owned_data));
 }
 
-float* msdfgen_generateMSDF(
+double msdfgen_getKerning(
+        msdfgen::FontHandle *fontHandle,
+        int left_unicode,
+        int right_unicode)
+{
+    double output;
+    if (!msdfgen::getKerning(output, fontHandle, left_unicode, right_unicode))
+        return std::numeric_limits<double>::quiet_NaN();
+    return output;
+}
+
+MSDFGenResult* msdfgen_generateMSDF(
         int width,
         int height,
         msdfgen::FontHandle *fontHandle,
@@ -59,26 +94,26 @@ float* msdfgen_generateMSDF(
         double edgeThreshold,
         char overlapSupport)
 {
-    assert(width <= MAX_OUTPUT_SIZE);
-    assert(height <= MAX_OUTPUT_SIZE);
+    double advance;
     msdfgen::Shape shape;
-    if (!msdfgen::loadGlyph(shape, fontHandle, unicode)) {
+    if (!msdfgen::loadGlyph(shape, fontHandle, unicode, &advance)) {
         return nullptr;
     }
     edgeColoringSimple(shape, edgeColoringAngleThreshold);
-    msdfgen::BitmapRef<float, 3> outputBmpRef(output_buffer, width, height);
-    msdfgen::generateMSDF(
-                outputBmpRef,
+
+    return generateMSDFResult(
+                width,
+                height,
                 shape,
+                advance,
                 range,
                 {scale_x, scale_y},
                 {translate_x, translate_y},
                 edgeThreshold,
                 overlapSupport);
-    return output_buffer;
 }
 
-float* msdfgen_generateAutoscaledMSDF(
+MSDFGenResult* msdfgen_generateAutoscaledMSDF(
         int width,
         int height,
         msdfgen::FontHandle *fontHandle,
@@ -89,7 +124,6 @@ float* msdfgen_generateAutoscaledMSDF(
         char overlapSupport)
 {
     double advance = 0.0;
-    double bearingX = 0.0;
 
     double l = std::numeric_limits<double>::max();
     double b = std::numeric_limits<double>::max();
@@ -99,7 +133,7 @@ float* msdfgen_generateAutoscaledMSDF(
     double scale = 1.0;
 
     msdfgen::Shape shape;
-    if (!msdfgen::loadGlyph(shape, fontHandle, unicode, &advance, &bearingX)) {
+    if (!msdfgen::loadGlyph(shape, fontHandle, unicode, &advance)) {
         return nullptr;
     }
 
@@ -114,31 +148,53 @@ float* msdfgen_generateAutoscaledMSDF(
     msdfgen::Vector2 dims(r-l, t-b);
     if (dims.x*frame.y < dims.y*frame.x) {
         translate.set(.5*(frame.x/frame.y*dims.y-dims.x)-l, -b);
-        scale = std::min(2.0, frame.y/dims.y);
+        scale = std::min(2.0, std::floor(frame.y/dims.y*32.)/32.);
     } else {
         translate.set(-l, .5*(frame.y/frame.x*dims.x-dims.y)-b);
-        scale = std::min(2.0, frame.x/dims.x);
+        scale = std::min(2.0, std::floor(frame.x/dims.x*32.)/32.);
     }
 
-    float *writting_ptr = output_buffer;
-    *(writting_ptr++) = translate.x - bearingX;
-    *(writting_ptr++) = translate.y;
-    *(writting_ptr++) = scale;
-    *(writting_ptr++) = advance;
-
     edgeColoringSimple(shape, edgeColoringAngleThreshold);
-    msdfgen::BitmapRef<float, 3> outputBmpRef(writting_ptr, width, height);
-    msdfgen::generateMSDF(
-                outputBmpRef,
+
+    return generateMSDFResult(
+                width,
+                height,
                 shape,
+                advance,
                 range,
-                {scale, scale},
+                {scale,scale},
                 translate,
                 edgeThreshold,
                 overlapSupport);
-    return output_buffer;
 }
 
+float *msdfgen_result_getMSDFData(MSDFGenResult *result)
+{
+    return result->msdf;
+}
+
+double msdfgen_result_getAdvance(MSDFGenResult *result)
+{
+    return result->advance;
+}
+
+
+double *msdfgen_result_getTranslation(MSDFGenResult *result)
+{
+    return result->translation;
+}
+
+
+double *msdfgen_result_getScale(MSDFGenResult *result)
+{
+    return result->scale;
+}
+
+
+void msdfgen_freeResult(MSDFGenResult *result)
+{
+    free(result);
+}
 
 
 void msdfgen_freeFont(msdfgen::FontHandle *fontHandle) {

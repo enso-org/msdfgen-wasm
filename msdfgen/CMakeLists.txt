@@ -90,16 +90,21 @@ target_include_directories(msdfgen_wasm PRIVATE
     "${CMAKE_CURRENT_LIST_DIR}/include"
     "${CMAKE_CURRENT_LIST_DIR}/wasm")
 set_target_properties(msdfgen_wasm PROPERTIES
-    LINK_FLAGS "-s EXPORTED_FUNCTIONS='[     \
-            \"_msdfgen_maxMSDFSize\",        \
-            \"_msdfgen_loadFontMemory\",     \
-            \"_msdfgen_generateMSDF\",       \
+    LINK_FLAGS "-s EXPORTED_FUNCTIONS='[         \
+            \"_msdfgen_loadFontMemory\",         \
+            \"_msdfgen_getKerning\",             \
+            \"_msdfgen_generateMSDF\",           \
             \"_msdfgen_generateAutoscaledMSDF\", \
-            \"_msdfgen_freeFont\"]'          \
-        -s 'EXTRA_EXPORTED_RUNTIME_METHODS=[ \
-            \"ccall\",                       \
-            \"cwrap\",                       \
-            \"getValue\"]'                   \
-        -s SINGLE_FILE=1                     \
+            \"_msdfgen_result_getMSDFData\",     \
+            \"_msdfgen_result_getAdvance\",      \
+            \"_msdfgen_result_getTranslation\",  \
+            \"_msdfgen_result_getScale\",        \
+            \"_msdfgen_freeResult\",             \
+            \"_msdfgen_freeFont\"]'              \
+        -s 'EXTRA_EXPORTED_RUNTIME_METHODS=[     \
+            \"ccall\",                           \
+            \"cwrap\",                           \
+            \"getValue\"]'                       \
+        -s SINGLE_FILE=1                         \
         --pre-js ${CMAKE_CURRENT_LIST_DIR}/wasm/pre.js \
         --post-js ${CMAKE_CURRENT_LIST_DIR}/wasm/post.js")
