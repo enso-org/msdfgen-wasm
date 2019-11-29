@@ -94,7 +94,7 @@ set_target_properties(msdfgen_wasm PROPERTIES
             \"_msdfgen_loadFontMemory\",         \
             \"_msdfgen_getKerning\",             \
             \"_msdfgen_generateMSDF\",           \
-            \"_msdfgen_generateAutoscaledMSDF\", \
+            \"_msdfgen_generateAutoframedMSDF\", \
             \"_msdfgen_result_getMSDFData\",     \
             \"_msdfgen_result_getAdvance\",      \
             \"_msdfgen_result_getTranslation\",  \

@@ -7,7 +7,7 @@ if (typeof exports === 'object') {
     exports._msdfgen_loadFontMemory=_msdfgen_loadFontMemory
     exports._msdfgen_getKerning=_msdfgen_getKerning
     exports._msdfgen_generateMSDF=_msdfgen_generateMSDF
-    exports._msdfgen_generateAutoscaledMSDF=_msdfgen_generateAutoscaledMSDF
+    exports._msdfgen_generateAutoframedMSDF=_msdfgen_generateAutoframedMSDF
     exports._msdfgen_result_getMSDFData=_msdfgen_result_getMSDFData
     exports._msdfgen_result_getAdvance=_msdfgen_result_getAdvance
     exports._msdfgen_result_getTranslation=_msdfgen_result_getTranslation

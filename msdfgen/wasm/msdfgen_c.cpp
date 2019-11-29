@@ -23,6 +23,42 @@ FtHandlePtr &getFtHandle() {
     return ptr;
 }
 
+
+void autoframe(
+        const msdfgen::Shape &shape,
+        int width,
+        int height,
+        double range,
+        msdfgen::Vector2 &translate,
+        double &scale)
+{
+    // This code was mainly copied from the msdfgen's main function
+    double l = std::numeric_limits<double>::max();
+    double b = std::numeric_limits<double>::max();
+    double r = std::numeric_limits<double>::min();
+    double t = std::numeric_limits<double>::min();
+
+    shape.bounds(l, b, r, t);
+    msdfgen::Vector2 frame(width, height);
+    l -= .5*range;
+    b -= .5*range;
+    r += .5*range;
+    t += .5*range;
+    if (l >= r || b >= t)
+        l = 0, b = 0, r = width, t = height;
+    msdfgen::Vector2 dims(r-l, t-b);
+    if (dims.x*frame.y < dims.y*frame.x) {
+        translate.set(.5*(frame.x/frame.y*dims.y-dims.x)-l, -b);
+        scale = frame.y/dims.y;
+    } else {
+        translate.set(-l, .5*(frame.y/frame.x*dims.x-dims.y)-b);
+        scale = frame.x/dims.x;
+    }
+
+    // Do some granularity to avoid propagation of float precision errors
+    scale = std::floor(scale*32.)/32.;
+}
+
 MSDFGenResult *generateMSDFResult(
         int width,
         int height,
@@ -113,22 +149,19 @@ MSDFGenResult* msdfgen_generateMSDF(
                 overlapSupport);
 }
 
-MSDFGenResult* msdfgen_generateAutoscaledMSDF(
+MSDFGenResult* msdfgen_generateAutoframedMSDF(
         int width,
         int height,
         msdfgen::FontHandle *fontHandle,
         int unicode,
         double edgeColoringAngleThreshold,
         double range,
+        double max_scale,
         double edgeThreshold,
         char overlapSupport)
 {
     double advance = 0.0;
 
-    double l = std::numeric_limits<double>::max();
-    double b = std::numeric_limits<double>::max();
-    double r = std::numeric_limits<double>::min();
-    double t = std::numeric_limits<double>::min();
     msdfgen::Vector2 translate;
     double scale = 1.0;
 
@@ -137,22 +170,8 @@ MSDFGenResult* msdfgen_generateAutoscaledMSDF(
         return nullptr;
     }
 
-    shape.bounds(l, b, r, t);
-    msdfgen::Vector2 frame(width, height);
-    l -= .5*range;
-    b -= .5*range;
-    r += .5*range;
-    t += .5*range;
-    if (l >= r || b >= t)
-        l = 0, b = 0, r = width, t = height;
-    msdfgen::Vector2 dims(r-l, t-b);
-    if (dims.x*frame.y < dims.y*frame.x) {
-        translate.set(.5*(frame.x/frame.y*dims.y-dims.x)-l, -b);
-        scale = std::min(2.0, std::floor(frame.y/dims.y*32.)/32.);
-    } else {
-        translate.set(-l, .5*(frame.y/frame.x*dims.x-dims.y)-b);
-        scale = std::min(2.0, std::floor(frame.x/dims.x*32.)/32.);
-    }
+    autoframe(shape, width, height, range, translate, scale);
+    scale = std::min(max_scale, scale);
 
     edgeColoringSimple(shape, edgeColoringAngleThreshold);
 
@@ -178,24 +197,20 @@ double msdfgen_result_getAdvance(MSDFGenResult *result)
     return result->advance;
 }
 
-
 double *msdfgen_result_getTranslation(MSDFGenResult *result)
 {
     return result->translation;
 }
-
 
 double *msdfgen_result_getScale(MSDFGenResult *result)
 {
     return result->scale;
 }
 
-
 void msdfgen_freeResult(MSDFGenResult *result)
 {
     free(result);
 }
-
 
 void msdfgen_freeFont(msdfgen::FontHandle *fontHandle) {
     msdfgen::destroyFont(fontHandle);
