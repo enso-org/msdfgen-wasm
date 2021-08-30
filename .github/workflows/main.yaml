@@ -10,7 +10,7 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Setup emsdk
-      uses: mymindstorm/setup-emsdk@v9
+      uses: mymindstorm/setup-emsdk@v10
       with:
         version: 2.0.27
     - name: Install cmake
