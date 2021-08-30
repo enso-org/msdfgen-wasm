@@ -116,6 +116,7 @@ FontHandle * loadFontMemory(FreetypeHandle *library, std::vector<unsigned char> 
                 0,
                 &handle->face);
     if (error) {
+        printf("Loading font failed. Error code %d.\n", error);
         delete handle;
         return NULL;
     }

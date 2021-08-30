@@ -12,13 +12,13 @@ jobs:
     - name: Install emscripten
       uses: lovasoa/setup-emscripten@master
       with:
-        emscripten-version: '1.39.1'
+        emscripten-version: '2.0.27'
     - name: Install cmake
       run: sudo apt-get install cmake
     - name: Build
       run: |
         mkdir build
         cd build
-        emconfigure cmake .. -DCMAKE_BUILD_TYPE=Release
+        emcmake cmake .. -DCMAKE_BUILD_TYPE=Release
         emmake make
 
