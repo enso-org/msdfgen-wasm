@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 2.8.12)
 project(msdfgen)
 
 #find_package(Freetype REQUIRED)
-add_subdirectory(../freetype2 freetype2)
+#add_subdirectory(../freetype2 freetype2)
 
 include(CheckCXXCompilerFlag)
 CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
@@ -101,7 +101,7 @@ set_target_properties(msdfgen_wasm PROPERTIES
             \"_msdfgen_result_getScale\",        \
             \"_msdfgen_freeResult\",             \
             \"_msdfgen_freeFont\"]'              \
-        -s 'EXTRA_EXPORTED_RUNTIME_METHODS=[     \
+        -s 'EXPORTED_RUNTIME_METHODS=[     \
             \"ccall\",                           \
             \"cwrap\",                           \
             \"getValue\"]'                       \
