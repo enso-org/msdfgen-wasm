@@ -32,6 +32,7 @@ class FontHandle {
     friend bool getFontScale(double &output, FontHandle *font);
     friend bool getFontWhitespaceWidth(double &spaceAdvance, double &tabAdvance, FontHandle *font);
     friend bool loadGlyph(Shape &output, FontHandle *font, int unicode, double *advance);
+    friend bool loadGlyphByIndex(Shape &output, FontHandle *font, int index, double *advance);
     friend bool getKerning(double &output, FontHandle *font, int unicode1, int unicode2);
 
     FT_Face face;
@@ -149,6 +150,32 @@ bool loadGlyph(Shape &output, FontHandle *font, int unicode, double *advance) {
     if (!font)
         return false;
     FT_Error error = FT_Load_Char(font->face, unicode, FT_LOAD_NO_SCALE);
+    if (error)
+        return false;
+    output.contours.clear();
+    output.inverseYAxis = false;
+    if (advance)
+        *advance = font->face->glyph->advance.x/64.;
+
+    FtContext context = { };
+    context.shape = &output;
+    FT_Outline_Funcs ftFunctions;
+    ftFunctions.move_to = &ftMoveTo;
+    ftFunctions.line_to = &ftLineTo;
+    ftFunctions.conic_to = &ftConicTo;
+    ftFunctions.cubic_to = &ftCubicTo;
+    ftFunctions.shift = 0;
+    ftFunctions.delta = 0;
+    error = FT_Outline_Decompose(&font->face->glyph->outline, &ftFunctions, &context);
+    if (error)
+        return false;
+    return true;
+}
+
+bool loadGlyphByIndex(Shape &output, FontHandle *font, int index, double *advance) {
+    if (!font)
+        return false;
+    FT_Error error = FT_Load_Glyph(font->face, index, FT_LOAD_NO_SCALE);
     if (error)
         return false;
     output.contours.clear();
