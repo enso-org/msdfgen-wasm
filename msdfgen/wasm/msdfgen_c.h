@@ -38,7 +38,7 @@ double msdfgen_getKerning(
         int right_unicode);
 
 /*
- * Generate MSDF with autoframe
+ * Generate MSDF
  *
  * This function returns some glyph metadata usable for text rendering.
  * The returned object must be freed by caller using msdfgen_freeResult.
@@ -57,6 +57,12 @@ MSDFGenResult* msdfgen_generateMSDF(
         double edgeThreshold = 1.001,
         char overlapSupport = 1);
 
+/*
+ * Generate MSDF
+ *
+ * A variant of `msdfgen_generateMSDF`, where the glyph is identified by
+ * its index in the font file instead of unicode codepoint.
+ */
 MSDFGenResult* msdfgen_generateMSDFByIndex(
         int width,
         int height,
@@ -90,6 +96,12 @@ MSDFGenResult* msdfgen_generateAutoframedMSDF(
         double edgeThreshold = 1.001,
         char overlapSupport = 1);
 
+/*
+ * Generate MSDF with autoframe
+ *
+ * A variant of `msdfgen_generateMSDF`, where the glyph is identified by
+ * its index in the font file instead of unicode codepoint.
+ */
 MSDFGenResult* msdfgen_generateAutoframedMSDFByIndex(
         int width,
         int height,
