@@ -149,6 +149,39 @@ MSDFGenResult* msdfgen_generateMSDF(
                 overlapSupport);
 }
 
+MSDFGenResult* msdfgen_generateMSDFByIndex(
+        int width,
+        int height,
+        msdfgen::FontHandle *fontHandle,
+        int index,
+        double edgeColoringAngleThreshold,
+        double range,
+        double scale_x,
+        double scale_y,
+        double translate_x,
+        double translate_y,
+        double edgeThreshold,
+        char overlapSupport)
+{
+    double advance;
+    msdfgen::Shape shape;
+    if (!msdfgen::loadGlyphByIndex(shape, fontHandle, index, &advance)) {
+        return nullptr;
+    }
+    edgeColoringSimple(shape, edgeColoringAngleThreshold);
+
+    return generateMSDFResult(
+                width,
+                height,
+                shape,
+                advance,
+                range,
+                {scale_x, scale_y},
+                {translate_x, translate_y},
+                edgeThreshold,
+                overlapSupport);
+}
+
 MSDFGenResult* msdfgen_generateAutoframedMSDF(
         int width,
         int height,
@@ -186,6 +219,45 @@ MSDFGenResult* msdfgen_generateAutoframedMSDF(
                 edgeThreshold,
                 overlapSupport);
 }
+
+MSDFGenResult* msdfgen_generateAutoframedMSDFByIndex(
+        int width,
+        int height,
+        msdfgen::FontHandle *fontHandle,
+        int index,
+        double edgeColoringAngleThreshold,
+        double range,
+        double max_scale,
+        double edgeThreshold,
+        char overlapSupport)
+{
+    double advance = 0.0;
+
+    msdfgen::Vector2 translate;
+    double scale = 1.0;
+
+    msdfgen::Shape shape;
+    if (!msdfgen::loadGlyphByIndex(shape, fontHandle, index, &advance)) {
+        return nullptr;
+    }
+
+    autoframe(shape, width, height, range, translate, scale);
+    scale = std::min(max_scale, scale);
+
+    edgeColoringSimple(shape, edgeColoringAngleThreshold);
+
+    return generateMSDFResult(
+                width,
+                height,
+                shape,
+                advance,
+                range,
+                {scale,scale},
+                translate,
+                edgeThreshold,
+                overlapSupport);
+}
+
 
 float *msdfgen_result_getMSDFData(MSDFGenResult *result)
 {

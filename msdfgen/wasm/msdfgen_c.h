@@ -57,6 +57,21 @@ MSDFGenResult* msdfgen_generateMSDF(
         double edgeThreshold = 1.001,
         char overlapSupport = 1);
 
+MSDFGenResult* msdfgen_generateMSDFByIndex(
+        int width,
+        int height,
+        msdfgen::FontHandle *fontHandle,
+        int index,
+        double edgeColoringAngleThreshold,
+        double range,
+        double scale_x,
+        double scale_y,
+        double translate_x,
+        double translate_y,
+        double edgeThreshold = 1.001,
+        char overlapSupport = 1);
+
+
 /*
  * Generate MSDF with autoframe
  *
@@ -69,6 +84,17 @@ MSDFGenResult* msdfgen_generateAutoframedMSDF(
         int height,
         msdfgen::FontHandle *fontHandle,
         int unicode,
+        double edgeColoringAngleThreshold,
+        double range,
+        double max_scale,
+        double edgeThreshold = 1.001,
+        char overlapSupport = 1);
+
+MSDFGenResult* msdfgen_generateAutoframedMSDFByIndex(
+        int width,
+        int height,
+        msdfgen::FontHandle *fontHandle,
+        int index,
         double edgeColoringAngleThreshold,
         double range,
         double max_scale,
