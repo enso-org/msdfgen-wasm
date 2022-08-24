@@ -37,6 +37,11 @@ double msdfgen_getKerning(
         int left_unicode,
         int right_unicode);
 
+bool msdfgen_setVariationAxis(
+        msdfgen::FontHandle *fontHandle,
+        unsigned long tag,
+        double coordinate);
+
 /*
  * Generate MSDF
  *
