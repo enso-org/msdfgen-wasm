@@ -10,6 +10,14 @@ namespace msdfgen {
 class FreetypeHandle;
 class FontHandle;
 
+/// Variation axis of a typeface (in font units).
+struct FontVariationCoordinate {
+    /// The axis's name. Not always meaningful for TrueType GX or OpenType variation fonts.
+    const char * name;
+    /// The value as double.
+    double coordinate;
+};
+
 /// Initializes the FreeType library
 FreetypeHandle * initializeFreetype();
 /// Deinitializes the FreeType library
@@ -29,5 +37,7 @@ bool loadGlyph(Shape &output, FontHandle *font, int unicode, double *advance = N
 bool loadGlyphByIndex(Shape &output, FontHandle *font, int index, double *advance = NULL);
 /// Returns the kerning distance adjustment between two specific glyphs.
 bool getKerning(double &output, FontHandle *font, int unicode1, int unicode2);
+/// Sets variation axis of variable font.
+bool setVariationAxis(FontHandle *font, FreetypeHandle *library, unsigned long tag, double coordinate);
 
 }

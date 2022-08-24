@@ -116,6 +116,14 @@ double msdfgen_getKerning(
     return output;
 }
 
+bool msdfgen_setVariationAxis(
+        msdfgen::FontHandle *fontHandle,
+        unsigned long tag,
+        double coordinate)
+{
+    return msdfgen::setVariationAxis(fontHandle, getFtHandle().get(), tag, coordinate);
+}
+
 MSDFGenResult* msdfgen_generateMSDF(
         int width,
         int height,

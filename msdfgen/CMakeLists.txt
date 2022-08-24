@@ -93,6 +93,7 @@ set_target_properties(msdfgen_wasm PROPERTIES
     LINK_FLAGS "-s EXPORTED_FUNCTIONS='[                \
             \"_msdfgen_loadFontMemory\",                \
             \"_msdfgen_getKerning\",                    \
+            \"_msdfgen_setVariationAxis\",              \
             \"_msdfgen_generateMSDF\",                  \
             \"_msdfgen_generateMSDFByIndex\",           \
             \"_msdfgen_generateAutoframedMSDF\",        \

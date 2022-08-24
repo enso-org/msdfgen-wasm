@@ -6,8 +6,11 @@ if (typeof exports === 'object') {
     exports.getValue=getValue
     exports._msdfgen_loadFontMemory=_msdfgen_loadFontMemory
     exports._msdfgen_getKerning=_msdfgen_getKerning
+    exports._msdfgen_setVariationAxis=_msdfgen_setVariationAxis
     exports._msdfgen_generateMSDF=_msdfgen_generateMSDF
+    exports._msdfgen_generateMSDFByIndex=_msdfgen_generateMSDFByIndex
     exports._msdfgen_generateAutoframedMSDF=_msdfgen_generateAutoframedMSDF
+    exports._msdfgen_generateAutoframedMSDFByIndex=_msdfgen_generateAutoframedMSDFByIndex
     exports._msdfgen_result_getMSDFData=_msdfgen_result_getMSDFData
     exports._msdfgen_result_getAdvance=_msdfgen_result_getAdvance
     exports._msdfgen_result_getTranslation=_msdfgen_result_getTranslation

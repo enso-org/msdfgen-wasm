@@ -6,6 +6,7 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include FT_OUTLINE_H
+#include FT_MULTIPLE_MASTERS_H
 
 #ifdef _WIN32
     #pragma comment(lib, "freetype.lib")
@@ -20,6 +21,7 @@ class FreetypeHandle {
     friend void deinitializeFreetype(FreetypeHandle *library);
     friend FontHandle * loadFont(FreetypeHandle *library, const char *filename);
     friend FontHandle * loadFontMemory(FreetypeHandle *library, std::vector<unsigned char> &&data);
+    friend bool setVariationAxis(FontHandle *font, FreetypeHandle *library, unsigned long tag, double coordinate);
 
     FT_Library library;
 
@@ -34,6 +36,7 @@ class FontHandle {
     friend bool loadGlyph(Shape &output, FontHandle *font, int unicode, double *advance);
     friend bool loadGlyphByIndex(Shape &output, FontHandle *font, int index, double *advance);
     friend bool getKerning(double &output, FontHandle *font, int unicode1, int unicode2);
+    friend bool setVariationAxis(FontHandle *font, FreetypeHandle *library, unsigned long tag, double coordinate);
 
     FT_Face face;
     std::vector<unsigned char> memory_data;
@@ -206,6 +209,29 @@ bool getKerning(double &output, FontHandle *font, int unicode1, int unicode2) {
     }
     output = kerning.x/64.;
     return true;
+}
+
+bool setVariationAxis(FontHandle *font, FreetypeHandle *library, unsigned long tag, double coordinate) {
+    bool success = false;
+
+    if (font->face->face_flags & FT_FACE_FLAG_MULTIPLE_MASTERS) {
+        FT_MM_Var *amaster;
+        FT_Get_MM_Var(font->face, &amaster);
+
+        std::vector<FT_Fixed> coords;
+        coords.resize(amaster->num_axis);
+
+        FT_Get_Var_Design_Coordinates(font->face, coords.size(), coords.data());
+        for (FT_UInt i = 0; i < amaster->num_axis; i++) {
+            if (tag == amaster->axis[i].tag) {
+                coords[i] = (int)(coordinate * 65536.0);
+                success = true;
+            }
+        }
+        FT_Set_Var_Design_Coordinates(font->face, coords.size(), coords.data());
+        FT_Done_MM_Var(library->library, amaster);
+    }
+    return success;
 }
 
 }
