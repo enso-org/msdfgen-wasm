@@ -26,9 +26,7 @@
 #include <freetype/internal/ftstream.h>
 
   /* memory-mapping includes and definitions */
-#ifdef HAVE_UNISTD_H
 #include <unistd.h>
-#endif
 
 #include <sys/mman.h>
 #ifndef MAP_FILE
@@ -60,9 +58,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#ifdef HAVE_FCNTL_H
 #include <fcntl.h>
-#endif
 
 #include <stdio.h>
 #include <stdlib.h>
