@@ -109,5 +109,6 @@ set_target_properties(msdfgen_wasm PROPERTIES
             \"cwrap\",                                  \
             \"getValue\"]'                              \
         -s SINGLE_FILE=1                                \
+        -s ALLOW_MEMORY_GROWTH=1                        \
         --pre-js ${CMAKE_CURRENT_LIST_DIR}/wasm/pre.js  \
         --post-js ${CMAKE_CURRENT_LIST_DIR}/wasm/post.js")
